@@ -766,10 +766,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ){
     case adventurer:
         adventurerEffect(state, currentPlayer, drawntreasure, cardDrawn, z, temphand);
-			
     case council_room:
       councilRoomEffect(state, currentPlayer, handPos);
-			
     case feast:
       //gain card with cost up to 5
       //Backup hand

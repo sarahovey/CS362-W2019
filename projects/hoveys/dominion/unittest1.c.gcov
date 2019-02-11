@@ -1,0 +1,110 @@
+        -:    0:Source:unittest1.c
+        -:    0:Graph:unittest1.gcno
+        -:    0:Data:unittest1.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:
+        -:    9:// set NOISY_TEST to 0 to remove printfs from output
+        -:   10:#define NOISY_TEST 1
+        -:   11:
+        -:   12:/*
+        -:   13:Hand card Unit test
+        -:   14:Sara Hovey
+        -:   15:Winter, 2019
+        -:   16:*/
+        -:   17:
+        -:   18://Main
+        1:   19:int main(){
+        -:   20:    //Set up game
+        -:   21:    //My team at my internship has been on me about short variables names
+        -:   22:    //without further ado, please enjoy Long Variable Names
+        -:   23:    int i;
+        1:   24:    int randomSeed = 1000;
+        1:   25:    int numberOfTests = 1000;
+        1:   26:    int numberOfPlayers = 2;
+        1:   27:    int isTestPassed = 1;
+        1:   28:    char bee[] = "\U0001F41D";
+        1:   29:    char angery[] = "\U0001F608";
+        -:   30:    
+        1:   31:    char currentFunction[] = "handCard()";
+        -:   32:    int returnValue;
+        -:   33:    int handPosition;
+        -:   34:    struct gameState Game, copyOfGame;
+        1:   35:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   36:                 sea_hag, tribute, smithy};
+        -:   37:                 
+        1:   38:    initializeGame(numberOfPlayers, cardArray, randomSeed, &Game );
+        -:   39:    
+        -:   40:    //Test return value- I used ints instead of voids, so I can use this as a kind-of useless test
+        -:   41:    // to make sure nothing went catastrophically wrong
+        -:   42:    #if (NOISY_TEST == 1)
+        1:   43:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:   44:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   45:    #endif
+        -:   46:    
+        1:   47:    handPosition = 0;
+     1001:   48:    for(i = 0; i<numberOfTests; i++){
+     1000:   49:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   50:        copyOfGame.whoseTurn = 0;
+     1000:   51:        returnValue = handCard(handPosition, &copyOfGame);
+     1000:   52:        if (returnValue != Game.hand[0][handPosition]) {
+    #####:   53:            printf("FAILURE: return value invalid");
+    #####:   54:            isTestPassed = 0;
+        -:   55:        }
+     1000:   56:        handPosition++;
+     1000:   57:        if (handPosition > copyOfGame.handCount[0]) {
+      166:   58:            handPosition = 0;
+        -:   59:        }
+        -:   60:        
+     1000:   61:        if(!isTestPassed){
+    #####:   62:            printf("%s TEST FAILED ON RETURN VALUE %s\n", angery, angery);
+        -:   63:        }
+        -:   64:        
+        -:   65:    }
+        -:   66:    
+        1:   67:    if(isTestPassed){
+        1:   68:        printf("TEST 1 PASSED\n");
+        -:   69:    }
+        -:   70:    
+        -:   71:    //Test function results against our expected game state
+        -:   72:    #if (NOISY_TEST == 1)
+        1:   73:    printf("----------------- Test 1: Return handCard Values ----------------\n");
+        -:   74:    #endif
+        1:   75:    handPosition = 0;
+     1001:   76:     for (i = 0; i < numberOfTests; i++) {
+     1000:   77:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   78:        copyOfGame.whoseTurn = 0;
+     1000:   79:        handCard(handPosition, &copyOfGame);
+     1000:   80:        handPosition++;
+     1000:   81:        if (handPosition > copyOfGame.handCount[0]) {
+      166:   82:            handPosition = 0;
+        -:   83:        }
+        -:   84:    }
+        1:   85:    numberOfTests = Game.handCount[0];
+        6:   86:    for (i = 0; i < numberOfTests; i++ ) {
+        5:   87:        printf("Actual value: %d, Expected value: %d\n\n", copyOfGame.hand[0][i], Game.hand[0][i]);
+        5:   88:        if (copyOfGame.hand[0][i]!= Game.hand[0][i]) {
+    #####:   89:            isTestPassed = 0;
+        -:   90:        }
+        -:   91:        
+        5:   92:        if(!isTestPassed){
+    #####:   93:            printf("%s TEST FAILED ON HAND COUNT %s\n", angery, angery);
+        -:   94:        }
+        -:   95:    }
+        -:   96:    
+        1:   97:    if(isTestPassed){
+        1:   98:        printf("TEST 2 PASSED\n");
+        -:   99:    }
+        -:  100:    
+        -:  101:    //If the tests have not already failed, return true!
+        1:  102:    if(isTestPassed){
+        1:  103:        printf("%s ALL TESTS PASSED %s\n", bee, bee);
+        -:  104:    }
+        -:  105:}

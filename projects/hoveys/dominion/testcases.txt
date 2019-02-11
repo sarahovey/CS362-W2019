@@ -1,0 +1,44 @@
+Add noisy test to all
+Add correct failure message to all
+Add correct pass message to all
+Remove all tests passing statements
+
+
+smithy:
+before: n cards
+after: n+3 cards
+
+adventurer:
+before:
+after:
+
+cutpurse:
+before:
+after:
+
+councilRoom:
+before: n cards for player, n cards for all others, n buys
+after: n+4 cards for player, n+1 cards for all others, n+1 buys
+
+Unit tests:
+E-handCard-return the number of cards in the current player's hand
+E-numHandCards- copy whoseturn but pass different params
+E-whoseturn- whose turn it is
+    return value
+    compare game state to copy of game state 
+H-fullDeckCount- value of player's hand, discard pile, and deck
+H-updateCoins
+    full hand of each type
+    mixed hand 
+    empty hand
+    mixed with bonus
+    --turn setting up hand into a function or loop
+    
+    
+var names
+print statements
+comments
+reorder tests
+add/remove tests
+    
+gcc -o unittest2 unittest2.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=C99

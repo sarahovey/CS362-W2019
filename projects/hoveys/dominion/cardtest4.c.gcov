@@ -1,0 +1,108 @@
+        -:    0:Source:cardtest4.c
+        -:    0:Graph:cardtest4.gcno
+        -:    0:Data:cardtest4.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:#define NOISY_TEST 1
+        -:    9:
+        1:   10:int main() {
+        -:   11:
+        -:   12:    //gcc -o cardtest4 cardtest4.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99 
+        1:   13:    int isTestPassed = 1;
+        -:   14:    struct gameState Game, copyOfGame;
+        1:   15:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   16:                 sea_hag, tribute, smithy};
+        -:   17:    int j, i, returnValue;
+        1:   18:    int numberOfTests = 50;
+        1:   19:    int numberOfplayerIndexs = 2;
+        1:   20:    int randSeed = 10000000;
+        1:   21:    int handIndex = 0;
+        1:   22:    int choice1 = 0, choice2 = 0, choice3 = 0;
+        1:   23:    int bonus = 0;
+        1:   24:    char bee[] = "\U0001F41D";
+        1:   25:    char angery[] = "\U0001F608";
+        1:   26:    int playerIndex = 0;
+        -:   27:    int handPosition;
+        1:   28:    int expectedHandCount = 5;
+        -:   29:
+        -:   30:    //Set up the game
+        1:   31:    initializeGame(numberOfplayerIndexs, cardArray, randSeed, &Game);
+        -:   32:    
+        -:   33:    #if (NOISY_TEST == 1)
+        1:   34:    printf("----------------- Testing Council Room ----------------\n");
+        1:   35:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   36:    #endif
+       51:   37:    for (i = 0; i < numberOfTests; i++) {
+       50:   38:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+       50:   39:        returnValue = cardEffect(council_room, choice1, choice2, choice3, &copyOfGame, handIndex, &bonus);
+       50:   40:        if (returnValue != 0) {
+    #####:   41:            isTestPassed = 0;
+    #####:   42:            break;
+        -:   43:        };
+        -:   44:    };
+        1:   45:    printf("Actual: %d, Expected: %d \n\n", returnValue, 0);
+        1:   46:    if(isTestPassed){
+        1:   47:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:   48:    }
+        -:   49:    
+        -:   50:    #if (NOISY_TEST == 1)
+        1:   51:    printf("----------------- Test 2: Check Coppers ----------------\n");
+        -:   52:    #endif
+        -:   53:    //Fill a hand with no copper
+        -:   54:    //I expect the hand size to remain the same, no discarding
+        1:   55:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   56:    copyOfGame.handCount[playerIndex] = 5;
+        1:   57:    expectedHandCount = 5;
+        -:   58:
+       51:   59:    for (i = 0; i < numberOfTests; i++) {
+       50:   60:        copyOfGame.hand[playerIndex][0] = gold;
+       50:   61:        copyOfGame.hand[playerIndex][1] = silver;
+       50:   62:        copyOfGame.hand[playerIndex][2] = silver;
+       50:   63:        copyOfGame.hand[playerIndex][3] = gold;
+       50:   64:        copyOfGame.hand[playerIndex][4] = gold;
+        -:   65:
+       50:   66:        cardEffect(cutpurse, choice1, choice2, choice3, &copyOfGame, handPosition, &bonus);
+       50:   67:        if (copyOfGame.handCount[playerIndex] != expectedHandCount) {
+       50:   68:            printf(" %s FAILURE, Test 2 No coppers %s \n Actual: %d, Expected: %d\n", angery, angery, copyOfGame.handCount[playerIndex], expectedHandCount);
+       50:   69:            isTestPassed = 0;
+        -:   70:        }
+        -:   71:    }
+        1:   72:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedHandCount);
+        1:   73:    if(isTestPassed){
+    #####:   74:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   75:    }
+        -:   76:    
+        -:   77:     #if (NOISY_TEST == 1)
+        1:   78:    printf("----------------- Test 2: Check Hand with One Copper ----------------\n");
+        -:   79:    #endif
+        -:   80:    //Fill a hand with no copper
+        -:   81:    //I expect the hand size to remain the same, no discarding
+        1:   82:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   83:    copyOfGame.handCount[playerIndex] = 5;
+        1:   84:    expectedHandCount = 4;
+        -:   85:
+       51:   86:    for (i = 0; i < numberOfTests; i++) {
+       50:   87:        copyOfGame.hand[playerIndex][0] = copper;
+       50:   88:        copyOfGame.hand[playerIndex][1] = silver;
+       50:   89:        copyOfGame.hand[playerIndex][2] = silver;
+       50:   90:        copyOfGame.hand[playerIndex][3] = gold;
+       50:   91:        copyOfGame.hand[playerIndex][4] = gold;
+        -:   92:
+       50:   93:        cardEffect(cutpurse, choice1, choice2, choice3, &copyOfGame, handPosition, &bonus);
+       50:   94:        if (copyOfGame.handCount[playerIndex] != expectedHandCount) {
+       50:   95:            printf(" %s FAILURE, Test 2 No coppers %s \n Actual: %d, Expected: %d\n", angery, angery, copyOfGame.handCount[playerIndex], expectedHandCount);
+       50:   96:            isTestPassed = 0;
+        -:   97:        }
+        -:   98:    }
+        1:   99:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedHandCount);
+        1:  100:    if(isTestPassed){
+    #####:  101:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  102:    }
+        -:  103:}
