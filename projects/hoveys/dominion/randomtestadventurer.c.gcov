@@ -1,0 +1,237 @@
+        -:    0:Source:randomtestadventurer.c
+        -:    0:Graph:randomtestadventurer.gcno
+        -:    0:Data:randomtestadventurer.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/**********************************************
+        -:    2: * Assignment 4
+        -:    3: * Sara Hovey
+        -:    4: * CS 362 
+        -:    5: * Winter 2019
+        -:    6: * gcc -o randomtestadventurer randomtestadventurer.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99
+        -:    7:***********************************************/
+        -:    8:#include "dominion.h"
+        -:    9:#include "dominion_helpers.h"
+        -:   10:#include <string.h>
+        -:   11:#include <stdio.h>
+        -:   12:#include <assert.h>
+        -:   13:#include "rngs.h"
+        -:   14:#include <stdlib.h>
+        -:   15:#include <math.h>
+        -:   16:#include <time.h>
+        -:   17:
+function main called 1 returned 100% blocks executed 91%
+        1:   18:int main() {
+        -:   19:
+        1:   20:    int isPassed = 1;
+        -:   21:    struct gameState Game, copyOfGame;
+        -:   22:
+        1:   23:    int numberOfTests = 50;
+        1:   24:    int handPosition = 0;
+        1:   25:    int firstChoice = 0, secondChoice = 0, thirdChoice = 0;
+        1:   26:    int bonus = 0;
+        -:   27:    int currentPlayer;
+        1:   28:    int addedCards = 2;
+        -:   29:    
+        -:   30:    int treasure, copytreasure;
+        -:   31:    int i, handPos, r, returnValue;
+        -:   32:    int totalCards, copytotalCards;
+        -:   33:    
+        1:   34:    char bee[] = "\U0001F41D";
+        1:   35:    char angery[] = "\U0001F608";
+        -:   36:    
+        -:   37:    // Seed random with time
+        1:   38:    srand(time(NULL));
+call    0 returned 1
+call    1 returned 1
+        -:   39:
+        -:   40:
+        1:   41:    printf("\n**********************Testing Adventurer******************\n");
+call    0 returned 1
+        -:   42:
+        -:   43:    // Populate the struct holding the game state with random numbers 
+       51:   44:    for (i = 0; i < numberOfTests; i++){
+branch  0 taken 50
+branch  1 taken 1 (fallthrough)
+   328800:   45:        for (handPos = 0; handPos < sizeof(struct gameState)/ sizeof(int); handPos++) {
+branch  0 taken 328750
+branch  1 taken 50 (fallthrough)
+   328750:   46:            ((int*)&Game)[handPos] = rand() % 128;
+call    0 returned 328750
+        -:   47:        }
+        -:   48:
+        -:   49:        // Here we make sure that the parts of the game state that we will be accessing
+        -:   50:        // are populated with valid input
+       50:   51:        Game.numPlayers = (rand() % 3)+2;
+call    0 returned 50
+       50:   52:        Game.whoseTurn = rand() % Game.numPlayers;
+call    0 returned 50
+       50:   53:        currentPlayer = whoseTurn(&Game);
+call    0 returned 50
+        -:   54:        
+       50:   55:        Game.handCount[currentPlayer] = (rand() % (MAX_HAND/2))+1;
+call    0 returned 50
+       50:   56:        Game.deckCount[currentPlayer] = (rand() % (MAX_DECK/2))+1;
+call    0 returned 50
+       50:   57:        Game.discardCount[currentPlayer] = (rand() % (MAX_DECK/2))+1;
+call    0 returned 50
+       50:   58:        handPosition = (rand() % Game.handCount[currentPlayer]);
+call    0 returned 50
+        -:   59:        
+        -:   60:        // Randomly assign some treasure and estates to the player's hand
+     6059:   61:        for (handPos = 0; handPos < Game.handCount[currentPlayer]; handPos++) {
+branch  0 taken 6009
+branch  1 taken 50 (fallthrough)
+     6009:   62:            r = (rand() % 2);
+call    0 returned 6009
+     6009:   63:            if (r == 0) {
+branch  0 taken 3068 (fallthrough)
+branch  1 taken 2941
+     3068:   64:                Game.hand[currentPlayer][handPos] = copper;
+        -:   65:            } else {
+     2941:   66:                Game.hand[currentPlayer][handPos] = estate;
+        -:   67:            }
+        -:   68:        }
+        -:   69:        
+        -:   70:        // Same to their deck
+     6469:   71:        for (handPos = 0; handPos < Game.deckCount[currentPlayer]; handPos++) {
+branch  0 taken 6419
+branch  1 taken 50 (fallthrough)
+     6419:   72:            r = (rand() % 2);
+call    0 returned 6419
+     6419:   73:            if (r == 0) {
+branch  0 taken 3256 (fallthrough)
+branch  1 taken 3163
+     3256:   74:                Game.deck[currentPlayer][handPos] = copper;
+        -:   75:            } 
+        -:   76:            else {
+     3163:   77:                Game.deck[currentPlayer][handPos] = estate;
+        -:   78:            }
+        -:   79:        }
+        -:   80:
+        -:   81:        // Make a copy of the game state struct such that we can
+        -:   82:        // compare the original state to changes made via tested functions
+       50:   83:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        -:   84:
+        -:   85:        // Since my function is int and not void, we can test return value here
+       50:   86:        returnValue = cardEffect(adventurer, firstChoice, secondChoice, thirdChoice, &copyOfGame, handPosition, &bonus);
+call    0 returned 50
+        -:   87:        
+       50:   88:        if (returnValue != 0) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 50
+        -:   89:            //Expecting a 0 to indicate nothing went wrong
+    #####:   90:            isPassed = 0;
+    #####:   91:            printf("%s TEST FAILED on return value %s\n", angery, angery);
+call    0 never executed
+        -:   92:        }
+        -:   93:        else{
+       50:   94:            printf("%s TEST PASSED on return value %s\n", bee, bee);
+call    0 returned 50
+        -:   95:        }
+        -:   96:
+        -:   97:        // Test the count of cards in the hand
+       50:   98:        if (copyOfGame.handCount[currentPlayer] != Game.handCount[currentPlayer]+addedCards){
+branch  0 taken 41 (fallthrough)
+branch  1 taken 9
+       41:   99:            isPassed = 0;
+       41:  100:            printf("Actual hand count: %d, Expected hand count: %d \n\n", copyOfGame.handCount[currentPlayer], Game.handCount[currentPlayer]+addedCards);
+call    0 returned 41
+        -:  101:        }
+        -:  102:
+        -:  103:        // Test the count of the deck and discard pile
+       50:  104:        totalCards = Game.deckCount[currentPlayer] + Game.discardCount[currentPlayer];
+       50:  105:        copytotalCards = copyOfGame.deckCount[currentPlayer] + copyOfGame.discardCount[currentPlayer];
+       50:  106:        if (copytotalCards != totalCards - addedCards) {
+branch  0 taken 41 (fallthrough)
+branch  1 taken 9
+       41:  107:            isPassed = 0;
+       41:  108:            printf("%s TEST FAILED on total card count %s\n", angery, angery);
+call    0 returned 41
+        -:  109:        }
+        -:  110:        else{
+        9:  111:            printf("%s TEST PASSED on total card count %s\n", bee, bee);
+call    0 returned 9
+        -:  112:        }
+       50:  113:        printf("Actual cards: %d, Expected cards: %d \n\n", copytotalCards, totalCards-addedCards);
+call    0 returned 50
+        -:  114:
+        -:  115:        // Test amount of treasure
+       50:  116:        treasure = 0;
+       50:  117:        handPos = 0;
+     6109:  118:        while (handPos < numHandCards(&Game)) {
+call    0 returned 6059
+branch  1 taken 6009
+branch  2 taken 50 (fallthrough)
+     6009:  119:            if (handCard(handPos, &Game) == copper) {
+call    0 returned 6009
+branch  1 taken 3068 (fallthrough)
+branch  2 taken 2941
+     3068:  120:                treasure++;
+        -:  121:            } 
+     2941:  122:            else if (handCard(handPos, &Game) == silver) {
+call    0 returned 2941
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2941
+    #####:  123:                treasure += 2;
+        -:  124:            } 
+     2941:  125:            else if (handCard(handPos, &Game) == gold) {
+call    0 returned 2941
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2941
+    #####:  126:                treasure += 3;
+        -:  127:            }
+     6009:  128:            handPos++;
+        -:  129:        }
+        -:  130:
+       50:  131:        copytreasure = 0;
+       50:  132:        handPos = 0;
+     6218:  133:        while (handPos < numHandCards(&copyOfGame)) {
+call    0 returned 6168
+branch  1 taken 6118
+branch  2 taken 50 (fallthrough)
+     6118:  134:            if (handCard(handPos, &copyOfGame) == copper) {
+call    0 returned 6118
+branch  1 taken 2995 (fallthrough)
+branch  2 taken 3123
+     2995:  135:                copytreasure++;
+        -:  136:            } 
+     3123:  137:            else if (handCard(handPos, &copyOfGame) == silver) {
+call    0 returned 3123
+branch  1 taken 0 (fallthrough)
+branch  2 taken 3123
+    #####:  138:                copytreasure += 2;
+        -:  139:            } 
+     3123:  140:            else if (handCard(handPos, &copyOfGame) == gold) {
+call    0 returned 3123
+branch  1 taken 0 (fallthrough)
+branch  2 taken 3123
+    #####:  141:                copytreasure += 3;
+        -:  142:            }
+     6118:  143:            handPos++;
+        -:  144:        };
+       50:  145:        if (copytreasure < treasure+2) {
+branch  0 taken 50 (fallthrough)
+branch  1 taken 0
+       50:  146:            isPassed = 0;
+       50:  147:            printf("%s TEST FAILED treasure count %s\n", angery, angery);
+call    0 returned 50
+        -:  148:        }
+        -:  149:        else{
+    #####:  150:            printf("%s TEST PASSED on treasure count %s\n", bee, bee);
+call    0 never executed
+        -:  151:        }
+       50:  152:        printf("Actual treasure: %d, Expected treasure: >= %d \n\n", copytreasure, treasure+2);
+call    0 returned 50
+        -:  153:    }
+        -:  154:    
+        -:  155:    //If the tests have not already failed, return true!
+        1:  156:    if(isPassed){
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1
+    #####:  157:        printf("%s ALL TESTS PASSED %s\n", bee, bee);
+call    0 never executed
+        -:  158:    }
+        -:  159:
+        1:  160:    return 0;
+        -:  161:};
