@@ -1,0 +1,157 @@
+        -:    0:Source:cardtest1.c
+        -:    0:Graph:cardtest1.gcno
+        -:    0:Data:cardtest1.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    0:Source is newer than graph
+        -:    1://Test adventurer
+        -:    2:// The adventurer card is a card that is played in the action phase of a player’s turn. 
+        -:    3:// This card allows the player to search their deck, card by card, until they have 2 new 
+        -:    4:// Treasure cards. Each card drawn that is not a Treasure card is discarded.
+        -:    5:
+        -:    6:#include "dominion.h"
+        -:    7:#include "dominion_helpers.h"
+        -:    8:#include <string.h>
+        -:    9:#include <stdio.h>
+        -:   10:#include <assert.h>
+        -:   11:#include "rngs.h"
+        -:   12:#include <stdlib.h>
+        -:   13:// set NOISY_TEST to 0 to remove printfs from output
+        -:   14:#define NOISY_TEST 1
+        -:   15:
+        -:   16://gcc -o cardtest1 cardtest1.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99 
+        1:   17:int main() {
+        -:   18:
+        1:   19:    int isTestPassed = 1;
+        -:   20:    //char testCard[] = "adventurer";
+        -:   21:    struct gameState Game, copyOfGame;
+        1:   22:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   23:                 sea_hag, tribute, smithy};
+        -:   24:
+        1:   25:    int numberOfTests = 1000;
+        -:   26:    int i, returnValue, j;
+        1:   27:    int numberOfPlayers = 2;
+        1:   28:    int seed = 1000000;
+        1:   29:    int handPos = 0;
+        1:   30:    int choice1 = 0, choice2 = 0, choice3 = 0;
+        1:   31:    int bonus = 0;
+        1:   32:    char bee[] = "\U0001F41D";
+        1:   33:    char angery[] = "\U0001F608";
+        -:   34:    
+        -:   35:    //Set up the game
+        1:   36:    initializeGame(numberOfPlayers, cardArray, seed, &Game);
+        1:   37:    if(isTestPassed){
+        1:   38:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   39:    }
+        -:   40:    
+        -:   41:    #if (NOISY_TEST == 1)
+        1:   42:    printf("----------------- Testing Adventurer ----------------\n");
+        1:   43:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   44:    #endif
+        -:   45:    
+     1001:   46:    for (i = 0; i < numberOfTests; i++) {
+     1000:   47:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   48:        returnValue = cardEffect(adventurer, choice1, choice2, choice3, &copyOfGame, handPos, &bonus);
+     1000:   49:        if (returnValue != 0) {
+    #####:   50:            isTestPassed = 0;
+    #####:   51:            break;
+        -:   52:        };
+        -:   53:    };
+        1:   54:    printf("Actual: %d, Expected: %d \n\n", returnValue, 0);
+        1:   55:    if(isTestPassed){
+        1:   56:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   57:    }
+        -:   58:    
+        -:   59:    #if (NOISY_TEST == 1)
+        1:   60:    printf("----------------- Test 2: Hand ----------------\n");
+        -:   61:    #endif
+        1:   62:    int addedCards = 2;
+        1:   63:    int currentPlayer = whoseTurn(&Game);
+        1:   64:    for (i = 0; i < numberOfTests; i++) {
+        1:   65:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   66:        cardEffect(adventurer, choice1, choice2, choice3, &copyOfGame, handPos, &bonus);
+        1:   67:        if (copyOfGame.handCount[currentPlayer] != Game.handCount[currentPlayer] + addedCards) {
+        1:   68:            isTestPassed = 0;
+        1:   69:            printf("%sFAILURE, Test 2%s\n", angery, angery);
+        1:   70:            break;
+        -:   71:        };
+        -:   72:    }
+        1:   73:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.handCount[currentPlayer], Game.handCount[currentPlayer] + addedCards);
+        1:   74:    if(isTestPassed){
+    #####:   75:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   76:    }
+        -:   77:    
+        -:   78:    #if (NOISY_TEST == 1)
+        1:   79:    printf("----------------- Test 3: Coins ----------------\n");
+        -:   80:    #endif
+        -:   81:    
+        -:   82:    int currentCoins, copyOfMoney;
+        1:   83:    for (i = 0; i < numberOfTests; i++) {
+        1:   84:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   85:        cardEffect(adventurer, choice1, choice2, choice3, &copyOfGame, handPos, &bonus);
+        -:   86:
+        1:   87:        currentCoins = 0;
+        1:   88:        j = 0;
+        7:   89:        while (j < numHandCards(&Game)) {
+        5:   90:            if (handCard(j, &Game) == copper) {
+        3:   91:                currentCoins++;
+        2:   92:            } else if (handCard(j, &Game) == silver) {
+    #####:   93:                currentCoins += 2;
+        2:   94:            } else if (handCard(j, &Game) == gold) {
+    #####:   95:                currentCoins += 3;
+        -:   96:            }
+        5:   97:            j++;
+        -:   98:        }
+        -:   99:
+        1:  100:        copyOfMoney = 0;
+        1:  101:        j = 0;
+        7:  102:        while (j < numHandCards(&copyOfGame)) {
+        5:  103:            if (handCard(j, &copyOfGame) == copper) {
+        3:  104:                copyOfMoney++;
+        2:  105:            } else if (handCard(j, &copyOfGame) == silver) {
+    #####:  106:                copyOfMoney += 2;
+        2:  107:            } else if (handCard(j, &copyOfGame) == gold) {
+    #####:  108:                copyOfMoney += 3;
+        -:  109:            }
+        5:  110:            j++;
+        -:  111:        };
+        1:  112:        if (copyOfMoney < currentCoins+2) {
+        1:  113:            isTestPassed = 0;
+        1:  114:            printf("%sFAILURE, Test 2%s\n", angery, angery);
+        1:  115:            break;
+        -:  116:        }
+        -:  117:    };
+        -:  118:
+        1:  119:    printf("Actual: %d, Expected: >= %d \n\n", copyOfMoney, currentCoins+2);
+        1:  120:    if(isTestPassed){
+    #####:  121:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  122:    }
+        -:  123:    
+        -:  124:    #if (NOISY_TEST == 1)
+        1:  125:    printf("----------------- Test 3: Number of Cards ----------------\n");
+        -:  126:    #endif
+        -:  127:
+        1:  128:    int cardsMovedtoHand = 2;
+        -:  129:    int totalCards, copytotalCards;
+        1:  130:    currentPlayer = whoseTurn(&Game);
+        -:  131:
+        1:  132:    for (i = 0; i < numberOfTests; i++) {
+        1:  133:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  134:        cardEffect(adventurer, choice1, choice2, choice3, &copyOfGame, handPos, &bonus);
+        -:  135:
+        1:  136:        totalCards = Game.deckCount[currentPlayer] + Game.discardCount[currentPlayer];
+        1:  137:        copytotalCards = copyOfGame.deckCount[currentPlayer] + copyOfGame.discardCount[currentPlayer];
+        1:  138:        if (copytotalCards != totalCards - cardsMovedtoHand) {
+        1:  139:            isTestPassed = 0;
+        1:  140:            printf("%sFAILURE, Test 2%s\n", angery, angery);
+        1:  141:            break;
+        -:  142:        };
+        -:  143:    };
+        -:  144:
+        1:  145:    printf("Total Cards: %d, Expected: %d \n\n", copytotalCards, totalCards-cardsMovedtoHand);
+        1:  146:    if(isTestPassed){
+    #####:  147:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  148:    }
+        -:  149:
+        1:  150:    return 0;
+        -:  151:};

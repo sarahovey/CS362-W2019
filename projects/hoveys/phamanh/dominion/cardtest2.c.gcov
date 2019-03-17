@@ -1,0 +1,76 @@
+        -:    0:Source:cardtest2.c
+        -:    0:Graph:cardtest2.gcno
+        -:    0:Data:cardtest2.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:#define NOISY_TEST 1
+        -:    9:
+        -:   10://gcc -o cardtest2 cardtest2.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99 
+        1:   11:int main() {
+        -:   12:
+        1:   13:    int isTestPassed = 1;
+        -:   14:    struct gameState Game, copyOfGame;
+        1:   15:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   16:                 sea_hag, tribute, smithy};
+        1:   17:    int x = 1000;
+        -:   18:    int i, returnValue;
+        1:   19:    int numberOfPlayers = 2;
+        1:   20:    int randSeed = 2;
+        1:   21:    int handPos = 0;
+        1:   22:    int choice1 = 0, choice2 = 0, choice3 = 0;
+        1:   23:    int bonus = 0;
+        1:   24:    char bee[] = "\U0001F41D";
+        1:   25:    char angery[] = "\U0001F608";
+        -:   26:
+        -:   27:    //Set up the game
+        1:   28:    initializeGame(numberOfPlayers, cardArray, randSeed, &Game);
+        -:   29:    
+        -:   30:    #if (NOISY_TEST == 1)
+        1:   31:    printf("----------------- Testing Smithy ----------------\n");
+        1:   32:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   33:    #endif
+        -:   34:
+     1001:   35:    for (i = 0; i < x; i++) {
+     1000:   36:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   37:        returnValue = cardEffect(smithy, choice1, choice2, choice3, &copyOfGame, handPos, &bonus);
+     1000:   38:        if (returnValue != 0) {
+    #####:   39:            isTestPassed = 0;
+    #####:   40:            break;
+        -:   41:        };
+        -:   42:    };
+        1:   43:    printf("Actual: %d, Expected: %d \n", returnValue, 0);
+        1:   44:    if(isTestPassed){
+        1:   45:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:   46:    }
+        -:   47:    
+        -:   48:    #if (NOISY_TEST == 1)
+        1:   49:    printf("----------------- Test 2: Draw Cards ----------------\n");
+        -:   50:    #endif
+        -:   51:
+        1:   52:    int addedCards = 3;
+        1:   53:    int discard = 1;
+        1:   54:    int currentPlayer = whoseTurn(&Game);
+        -:   55:
+     1001:   56:    for (i = 0; i < x; i++) {
+     1000:   57:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   58:        cardEffect(smithy, choice1, choice2, choice3, &copyOfGame, handPos, &bonus);
+     1000:   59:        if (copyOfGame.handCount[currentPlayer] != Game.handCount[currentPlayer]+addedCards-discard){
+    #####:   60:            isTestPassed = 0;
+    #####:   61:            printf("%sFAILURE, Test 2%s\n", angery, angery);
+    #####:   62:            break;
+        -:   63:        }
+        -:   64:    }
+        -:   65:
+        1:   66:    printf("Actual: %d, Expected: %d \n", copyOfGame.handCount[currentPlayer], Game.handCount[currentPlayer]+addedCards-discard);
+        1:   67:    if(isTestPassed){
+        1:   68:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:   69:    }
+        1:   70:    return 0;
+        -:   71:};

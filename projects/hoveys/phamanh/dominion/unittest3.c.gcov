@@ -1,0 +1,128 @@
+        -:    0:Source:unittest3.c
+        -:    0:Graph:unittest3.gcno
+        -:    0:Data:unittest3.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:
+        -:    9:// set NOISY_TEST to 0 to remove printfs from output
+        -:   10:#define NOISY_TEST 1
+        -:   11:
+        -:   12:/*
+        -:   13:Hand card Unit test
+        -:   14:Sara Hovey
+        -:   15:Winter, 2019
+        -:   16:*/
+        -:   17://gcc -o unittest3 unittest3.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99 
+        1:   18:int main() {
+        -:   19:
+        1:   20:    int isTestPassed = 1;
+        -:   21:    int i;
+        1:   22:    int numberOfTests = 1000;
+        -:   23:    int returnValue;
+        -:   24:
+        -:   25:
+        1:   26:    char currentFunction[] = "fullDeckCount()";
+        -:   27:    struct gameState Game, copyOfGame;
+        1:   28:    int randSeed = 2;
+        1:   29:    int numbplayerIndexs = 2;
+        1:   30:    int playerIndex = 0;
+        1:   31:    int card = 0;
+        1:   32:    char bee[] = "\U0001F41D";
+        1:   33:    char angery[] = "\U0001F608";
+        -:   34:
+        1:   35:    int k[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   36:                 sea_hag, tribute, smithy};
+        -:   37:
+        1:   38:    initializeGame(numbplayerIndexs, k, randSeed, &Game);
+        -:   39:
+        -:   40:    #if (NOISY_TEST == 1)
+        1:   41:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:   42:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   43:    #endif
+        1:   44:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        -:   45:
+     1001:   46:    for (i = 0; i < numberOfTests; i++) {
+     1000:   47:        returnValue = fullDeckCount(playerIndex, card, &copyOfGame);
+     1000:   48:        if (returnValue != 0) {
+    #####:   49:            printf("FAILURE: Actual: %d, Expected: %d\n", copyOfGame.discardCount[playerIndex], Game.discardCount[playerIndex]);
+    #####:   50:            printf("%sFAILURE, Test1: return values%s\n", angery, angery);
+    #####:   51:            isTestPassed = 0;
+        -:   52:        }
+        -:   53:    }
+        1:   54:    printf("Return Value: %d, Expected: %d \n\n", returnValue, 0);
+        1:   55:    if(isTestPassed){
+        1:   56:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   57:    }
+        -:   58:    
+        -:   59:    #if (NOISY_TEST == 1)
+        1:   60:    printf("----------------- Test 2: Return Values ----------------\n");
+        -:   61:    #endif
+        1:   62:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   63:    card = 4;
+        -:   64:
+     1001:   65:    for (i = 0; i < numberOfTests; i++) {
+     1000:   66:        fullDeckCount(playerIndex, card, &copyOfGame);
+     1000:   67:        if (copyOfGame.handCount[playerIndex] != Game.handCount[playerIndex]) {
+    #####:   68:            printf("FAILURE: Actual: %d, Expected: %d\n", copyOfGame.discardCount[playerIndex], Game.discardCount[playerIndex]);
+    #####:   69:            isTestPassed = 0;
+    #####:   70:             printf("%sFAILURE, Test1: return values%s\n", angery, angery);
+        -:   71:        };
+        -:   72:    }
+        -:   73:
+        1:   74:    printf("Hand Count: %d, EnumberOfTestspected: %d \n\n", copyOfGame.handCount[playerIndex], Game.handCount[playerIndex]);
+        1:   75:    if(isTestPassed){
+        1:   76:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   77:    }
+        -:   78:    //test and compare deck count in copied struct
+        -:   79:    #if (NOISY_TEST == 1)
+        1:   80:    printf("----------------- Test 3 ----------------\n");
+        -:   81:    #endif
+        1:   82:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   83:    card = 3;
+        -:   84:
+     1001:   85:    for (i = 0; i < numberOfTests; i++) {
+     1000:   86:        fullDeckCount(playerIndex, card, &copyOfGame);
+     1000:   87:        if (copyOfGame.deckCount[playerIndex] != Game.deckCount[playerIndex]) {
+    #####:   88:            printf("FAILURE: Actual: %d, Expected: %d\n", copyOfGame.discardCount[playerIndex], Game.discardCount[playerIndex]);
+    #####:   89:            isTestPassed = 0;
+    #####:   90:            printf("%sFAILURE, Test2: return values%s\n", angery, angery);
+        -:   91:        };
+        -:   92:    }
+        -:   93:
+        1:   94:    printf("Actual: %d, EnumberOfTestspected: %d \n\n", copyOfGame.deckCount[playerIndex], Game.deckCount[playerIndex]);
+        1:   95:    if(isTestPassed){
+        1:   96:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   97:    }
+        -:   98:    //test and compare deck count in copied struct
+        1:   99:    printf("\n----  - TEST 4: Discard Count  -  ----\n\n");
+        1:  100:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  101:    card = 5;
+        -:  102:
+     1001:  103:    for (i = 0; i < numberOfTests; i++) {
+     1000:  104:        fullDeckCount(playerIndex, card, &copyOfGame);
+     1000:  105:        if (copyOfGame.discardCount[playerIndex] != Game.discardCount[playerIndex]) {
+    #####:  106:            printf("FAILURE: Actual: %d, Expected: %d\n", copyOfGame.discardCount[playerIndex], Game.discardCount[playerIndex]);
+    #####:  107:            isTestPassed = 0;
+    #####:  108:            printf("%sFAILURE, Test1: return values%s\n", angery, angery);
+        -:  109:        };
+        -:  110:    }
+        -:  111:
+        1:  112:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.discardCount[playerIndex], Game.discardCount[playerIndex]);
+        1:  113:    if(isTestPassed){
+        1:  114:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  115:    }
+        -:  116:    
+        -:  117:    //If the tests have not already failed, return true!
+        1:  118:    if(isTestPassed){
+        1:  119:        printf("%s ALL TESTS PASSED %s\n", bee, bee);
+        -:  120:    }
+        -:  121:
+        1:  122:    return 0;
+        -:  123:};

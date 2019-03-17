@@ -1,0 +1,68 @@
+        -:    0:Source:unittest4.c
+        -:    0:Graph:unittest4.gcno
+        -:    0:Data:unittest4.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:
+        -:    9:// set NOISY_TEST to 0 to remove printfs from output
+        -:   10:#define NOISY_TEST 1
+        -:   11:
+        -:   12:/*
+        -:   13:Hand card Unit test
+        -:   14:Sara Hovey
+        -:   15:Winter, 2019
+        -:   16:*/
+        -:   17:
+        -:   18://Main
+        1:   19:int main(){
+        -:   20:    //Set up game
+        -:   21:    //My team at my internship has been on me about short variables names
+        -:   22:    //without further ado, please enjoy Long Variable Names
+        -:   23:    int i;
+        1:   24:    int randomSeed = 1000;
+        1:   25:    int numberOfTests = 1000;
+        1:   26:    int numberOfPlayers = 2;
+        1:   27:    int isTestPassed = 1;
+        1:   28:    char bee[] = "\U0001F41D";
+        1:   29:    char angery[] = "\U0001F608";
+        -:   30:    
+        1:   31:    char currentFunction[] = "handCard()";
+        -:   32:    int returnValue;
+        -:   33:    struct gameState Game, copyOfGame;
+        1:   34:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   35:                 sea_hag, tribute, smithy};
+        -:   36:                 
+        1:   37:    initializeGame(numberOfPlayers, cardArray, randomSeed, &Game );
+        -:   38:    
+        -:   39:    #if (NOISY_TEST == 1)
+        1:   40:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:   41:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   42:    #endif
+        -:   43:    
+     1001:   44:    for(i = 0; i<numberOfTests; i++){
+     1000:   45:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   46:        copyOfGame.whoseTurn = 0;
+     1000:   47:        returnValue = whoseTurn(&copyOfGame);
+     1000:   48:        if (returnValue != Game.whoseTurn) {
+    #####:   49:            printf("FAILURE: return value invalid");
+    #####:   50:            isTestPassed = 0;
+        -:   51:        }
+        -:   52:        
+     1000:   53:        if(!isTestPassed){
+    #####:   54:            printf("%s TEST FAILED ON RETURNING CORRECT TURN %s\n", angery, angery);
+        -:   55:        }
+        -:   56:        
+        -:   57:    }
+        -:   58:    
+        -:   59:    //If the tests have not already failed, return true!
+        1:   60:    if(isTestPassed){
+        1:   61:        printf("%s ALL TESTS PASSED %s\n", bee, bee);
+        -:   62:    }
+        -:   63:}

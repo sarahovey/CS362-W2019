@@ -1,0 +1,133 @@
+        -:    0:Source:cardtest3.c
+        -:    0:Graph:cardtest3.gcno
+        -:    0:Data:cardtest3.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:#define NOISY_TEST 1
+        -:    9:
+        1:   10:int main() {
+        -:   11:
+        -:   12:    //gcc -o cardtest3 cardtest3.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99 
+        1:   13:    int isTestPassed = 1;
+        -:   14:    struct gameState Game, copyOfGame;
+        1:   15:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   16:                 sea_hag, tribute, smithy};
+        -:   17:    int j, i, returnValue;
+        1:   18:    int x = 1000;
+        1:   19:    int numberOfPlayers = 2;
+        1:   20:    int randSeed = 10000000;
+        1:   21:    int handIndex = 0;
+        1:   22:    int choice1 = 0, choice2 = 0, choice3 = 0;
+        1:   23:    int bonus = 0;
+        1:   24:    char bee[] = "\U0001F41D";
+        1:   25:    char angery[] = "\U0001F608";
+        -:   26:
+        -:   27:    //Set up the game
+        1:   28:    initializeGame(numberOfPlayers, cardArray, randSeed, &Game);
+        -:   29:    
+        -:   30:    #if (NOISY_TEST == 1)
+        1:   31:    printf("----------------- Testing Council Room ----------------\n");
+        1:   32:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   33:    #endif
+     1001:   34:    for (i = 0; i < x; i++) {
+     1000:   35:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   36:        returnValue = cardEffect(council_room, choice1, choice2, choice3, &copyOfGame, handIndex, &bonus);
+     1000:   37:        if (returnValue != 0) {
+    #####:   38:            isTestPassed = 0;
+    #####:   39:            break;
+        -:   40:        };
+        -:   41:    };
+        1:   42:    printf("Actual: %d, Expected: %d \n\n", returnValue, 0);
+        1:   43:    if(isTestPassed){
+        1:   44:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:   45:    }
+        -:   46:    
+        -:   47:    #if (NOISY_TEST == 1)
+        1:   48:    printf("----------------- Test 2: Draw Cards ----------------\n");
+        -:   49:    #endif
+        -:   50:
+        -:   51:
+        1:   52:    int addedCards = 4;
+        1:   53:    int discard = 1;
+        1:   54:    int currentPlayer = whoseTurn(&Game);
+        -:   55:
+        1:   56:    for (i = 0; i < x; i++) {
+        1:   57:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   58:        cardEffect(council_room, choice1, choice2, choice3, &copyOfGame, handIndex, &bonus);
+        -:   59:
+        1:   60:        if (copyOfGame.handCount[currentPlayer] != Game.handCount[currentPlayer] + addedCards - discard) {
+        1:   61:            isTestPassed = 0;
+        1:   62:            printf("%sFAILURE, Test 2, testing handCount, number of cards in hand %s\n", angery, angery);
+        1:   63:            printf("Actual: %d Expected: %d", Game.handCount[currentPlayer] + addedCards - discard, copyOfGame.handCount[currentPlayer] );
+        1:   64:            break;
+        -:   65:        };
+        -:   66:    };
+        1:   67:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.handCount[currentPlayer], Game.handCount[currentPlayer]+addedCards-discard);
+        1:   68:    if(isTestPassed){
+    #####:   69:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:   70:    }
+        -:   71:    
+        -:   72:    #if (NOISY_TEST == 1)
+        1:   73:    printf("----------------- Test 3: Number of Buys ----------------\n");
+        -:   74:    #endif
+        1:   75:    int addedBuys = 1;
+        1:   76:    currentPlayer = whoseTurn(&Game);
+        -:   77:
+     1001:   78:    for (i = 0; i < x; i++) {
+     1000:   79:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:   80:        cardEffect(council_room, choice1, choice2, choice3, &copyOfGame, handIndex, &bonus);
+     1000:   81:        if (copyOfGame.numBuys != Game.numBuys + addedBuys) {
+    #####:   82:            isTestPassed = 0;
+    #####:   83:            printf("%sFAILURE, Test 2%s\n", angery, angery);
+    #####:   84:            break;
+        -:   85:        };
+        -:   86:    };
+        -:   87:
+        1:   88:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.numBuys, Game.numBuys+addedBuys);
+        1:   89:    if(isTestPassed){
+    #####:   90:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:   91:    }
+        -:   92:
+        -:   93:    #if (NOISY_TEST == 1)
+        1:   94:    printf("----------------- Test 4: Draw card for other player ----------------\n");
+        -:   95:    #endif
+        -:   96:
+        -:   97:    int playerHand[4];
+        -:   98:    int copyPlayerHand[4];
+        1:   99:    addedCards = 1;
+        1:  100:    currentPlayer = whoseTurn(&Game);
+        -:  101:
+     1001:  102:    for (i = 0; i < x; i++) {
+     1000:  103:        memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1000:  104:        cardEffect(council_room, choice1, choice2, choice3, &copyOfGame, handIndex, &bonus);
+        -:  105:
+     3000:  106:        for (j = 0; j < Game.numPlayers; j++) {
+     2000:  107:            if (j != currentPlayer) {
+     1000:  108:                copyPlayerHand[j] = copyOfGame.handCount[j];
+     1000:  109:                playerHand[j] = Game.handCount[j];
+        -:  110:            }
+        -:  111:        }
+        -:  112:
+     2000:  113:        for (j = 0; j < Game.numPlayers; j++) {
+     2000:  114:            if (j != currentPlayer) {
+     1000:  115:                if (copyPlayerHand[j] != playerHand[j] + addedCards) {
+     1000:  116:                    isTestPassed = 0;
+     1000:  117:                    printf("%sFAILURE, Test 2%s\n", angery, angery);
+     1000:  118:                    break;
+        -:  119:                }
+        -:  120:            }
+        -:  121:        }
+        -:  122:    };
+        -:  123:    
+        1:  124:    if(isTestPassed){
+    #####:  125:        printf("%s TEST PASSED %s\n", bee, bee);
+        -:  126:    }
+        1:  127:    return 0;
+        -:  128:};

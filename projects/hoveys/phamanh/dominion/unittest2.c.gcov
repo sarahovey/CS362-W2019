@@ -1,0 +1,236 @@
+        -:    0:Source:unittest2.c
+        -:    0:Graph:unittest2.gcno
+        -:    0:Data:unittest2.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include <string.h>
+        -:    4:#include <stdio.h>
+        -:    5:#include <assert.h>
+        -:    6:#include "rngs.h"
+        -:    7:#include <stdlib.h>
+        -:    8:
+        -:    9:// set NOISY_TEST to 0 to remove printfs from output
+        -:   10://gcc -o unittest2 unittest2.c -g dominion.o rngs.o -Wall -fpic -coverage -lm -std=c99 
+        -:   11:#define NOISY_TEST 1
+        -:   12:
+        -:   13:/*
+        -:   14:Hand card Unit test
+        -:   15:Sara Hovey
+        -:   16:Winter, 2019
+        -:   17:*/
+        -:   18:
+        -:   19://Main
+        1:   20:int main(){
+        -:   21:    //Set up game
+        -:   22:    //My team at my internship has been on me about short variables names
+        -:   23:    //without further ado, please enjoy Long Variable Names
+        -:   24:    int i;
+        1:   25:    int randomSeed = 1000;
+        1:   26:    int numberOfTests = 1000;
+        1:   27:    int numberOfPlayers = 2;
+        1:   28:    int isTestPassed = 1;
+        1:   29:    char bee[] = "\U0001F41D";
+        1:   30:    char angery[] = "\U0001F608";
+        -:   31:    int player;
+        -:   32:    int bonus;
+        -:   33:    
+        1:   34:    char currentFunction[] = "updateCoins()";
+        -:   35:    int returnValue;
+        -:   36:    struct gameState Game, copyOfGame;
+        1:   37:    int cardArray[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse,
+        -:   38:                 sea_hag, tribute, smithy};
+        -:   39:                 
+        1:   40:    initializeGame(numberOfPlayers, cardArray, randomSeed, &Game );
+        -:   41:    
+        -:   42:    //Test return value- I used ints instead of voids, so I can use this as a kind-of useless test
+        -:   43:    // to make sure nothing went catastrophically wrong
+        -:   44:    #if (NOISY_TEST == 1)
+        1:   45:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:   46:    printf("----------------- Test 1: Return Values ----------------\n");
+        -:   47:    #endif
+        -:   48:    
+        1:   49:    bonus = 0;
+        1:   50:    player = 0;
+        1:   51:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+     1001:   52:    for(i = 0; i<numberOfTests; i++){
+     1000:   53:        returnValue = updateCoins(player, &copyOfGame, bonus);
+     1000:   54:        if (returnValue !=0) {
+    #####:   55:            printf("FAILURE: return value invalid");
+    #####:   56:            isTestPassed = 0;
+        -:   57:        }
+        -:   58:        
+     1000:   59:        if(!isTestPassed){
+    #####:   60:            printf("%s TEST FAILED ON RETURN VALUE %s\n", angery, angery);
+        -:   61:        }
+        -:   62:        
+        -:   63:    }
+        -:   64:    
+        1:   65:    if(isTestPassed){
+        1:   66:        printf("TEST 1 PASSED\n");
+        -:   67:    }
+        -:   68:    
+        1:   69:    printf("Hand Count: %d, Expected: %d \n\n", copyOfGame.handCount[player], Game.handCount[player]);
+        1:   70:    if(isTestPassed){
+        1:   71:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:   72:    }
+        -:   73:    
+        -:   74:     #if (NOISY_TEST == 1)
+        1:   75:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:   76:    printf("----------------- Test: A hand of no coins ----------------\n");
+        -:   77:    #endif
+        1:   78:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:   79:    copyOfGame.handCount[player] = 5;
+        1:   80:    int expectedCoinCount = 0;
+        1:   81:    copyOfGame.coins = 0;
+        -:   82:
+     1001:   83:    for (i = 0; i < numberOfTests; i++) {
+     1000:   84:        copyOfGame.hand[player][0] = feast;
+     1000:   85:        copyOfGame.hand[player][1] = smithy;
+     1000:   86:        copyOfGame.hand[player][2] = village;
+     1000:   87:        copyOfGame.hand[player][3] = tribute;
+     1000:   88:        copyOfGame.hand[player][4] = ambassador;
+        -:   89:
+     1000:   90:        updateCoins(player, &copyOfGame, bonus);
+     1000:   91:        if (copyOfGame.coins != expectedCoinCount) {
+    #####:   92:            isTestPassed = 0;
+        -:   93:        }
+        -:   94:    }
+        1:   95:    if (!isTestPassed){
+    #####:   96:        printf("%sFAILURE, Test Empty%s\n Actual: %d, Expected: %d\n", angery, angery,copyOfGame.coins, expectedCoinCount);
+        -:   97:    }
+        1:   98:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedCoinCount);
+        -:   99:    
+        -:  100:    
+        -:  101:    #if (NOISY_TEST == 1)
+        1:  102:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:  103:    printf("----------------- Test 3: A hand of copper coins ----------------\n");
+        -:  104:    #endif
+        1:  105:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  106:    int copyHandCount = copyOfGame.handCount[player];
+        -:  107:    int j;
+        1:  108:    int coinValue = 1;
+        1:  109:    expectedCoinCount = copyHandCount *coinValue;
+        -:  110:
+        -:  111:    //Each run of the test, fill the player's hand with silver coins
+     1001:  112:    for (i = 0; i < numberOfTests; i++) {
+     6000:  113:        for (j = 0; j < copyHandCount; j++) {
+     5000:  114:            copyOfGame.hand[player][j] = copper;
+        -:  115:        }
+     1000:  116:        updateCoins(player, &copyOfGame, bonus);
+     1000:  117:        if (copyOfGame.coins != expectedCoinCount) {
+    #####:  118:            printf("FAILURE, Test 3 Copper\n Actual: %d, Expected: %d\n", copyOfGame.coins, expectedCoinCount);
+    #####:  119:            isTestPassed = 0;
+        -:  120:        }
+        -:  121:    }
+        1:  122:    printf("Coins: %d, Expected: %d \n\n", copyOfGame.coins, expectedCoinCount);
+        1:  123:    if(isTestPassed){
+        1:  124:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  125:    }
+        -:  126:    //Case: a hand of silvers
+        -:  127:    #if (NOISY_TEST == 1)
+        1:  128:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:  129:    printf("----------------- Test 4: A hand of silver coins ----------------\n");
+        -:  130:    #endif
+        1:  131:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  132:    copyHandCount = copyOfGame.handCount[player];
+        1:  133:    coinValue = 2;
+        1:  134:    expectedCoinCount = copyHandCount *coinValue;
+        -:  135:
+        -:  136:    //Each run of the test, fill the player's hand with silver coins
+     1001:  137:    for (i = 0; i < numberOfTests; i++) {
+        -:  138:
+     6000:  139:        for (j = 0; j < copyHandCount; j++) {
+     5000:  140:            copyOfGame.hand[player][j] = silver;
+        -:  141:        }
+     1000:  142:        updateCoins(player, &copyOfGame, bonus);
+     1000:  143:        if (copyOfGame.coins != expectedCoinCount) {
+    #####:  144:            printf("FAILURE, Test 4 Silver\n Actual: %d, Expected: %d\n", copyOfGame.coins, expectedCoinCount);
+    #####:  145:            isTestPassed = 0;
+        -:  146:        }
+        -:  147:    }
+        1:  148:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedCoinCount);
+        1:  149:    if(isTestPassed){
+        1:  150:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  151:    }
+        -:  152:    //Case: a hand of golds
+        -:  153:    #if (NOISY_TEST == 1)
+        1:  154:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:  155:    printf("----------------- Test 5: A hand of gold coins ----------------\n");
+        -:  156:    #endif
+        1:  157:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  158:    copyHandCount = copyOfGame.handCount[player];
+        1:  159:    coinValue = 3;
+        1:  160:    expectedCoinCount = copyHandCount *coinValue;
+        -:  161:
+     1001:  162:    for (i = 0; i < numberOfTests; i++) {
+        -:  163:        //Each run of the test, fill the player's hand with silver coins
+     6000:  164:        for (j = 0; j < copyHandCount; j++) {
+     5000:  165:            copyOfGame.hand[player][j] = gold;
+        -:  166:        }
+     1000:  167:        updateCoins(player, &copyOfGame, bonus);
+     1000:  168:        if (copyOfGame.coins != expectedCoinCount) {
+    #####:  169:            printf("FAILURE, Test 5 Gold\n Actual: %d, Expected: %d\n", copyOfGame.coins, expectedCoinCount);
+    #####:  170:            isTestPassed = 0;
+        -:  171:        }
+        -:  172:    }
+        1:  173:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedCoinCount);
+        1:  174:    if(isTestPassed){
+        1:  175:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  176:    }
+        -:  177:    
+        -:  178:    //case: a mixed hand of cards
+        -:  179:    #if (NOISY_TEST == 1)
+        1:  180:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:  181:    printf("----------------- Test 6: A hand of mixed coins ----------------\n");
+        -:  182:    #endif
+        1:  183:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  184:    copyOfGame.handCount[player] = 5;
+        1:  185:    expectedCoinCount = 11;
+        -:  186:
+     1001:  187:    for (i = 0; i < numberOfTests; i++) {
+     1000:  188:        copyOfGame.hand[player][0] = gold;
+     1000:  189:        copyOfGame.hand[player][1] = silver;
+     1000:  190:        copyOfGame.hand[player][2] = silver;
+     1000:  191:        copyOfGame.hand[player][3] = copper;
+     1000:  192:        copyOfGame.hand[player][4] = gold;
+        -:  193:
+     1000:  194:        updateCoins(player, &copyOfGame, bonus);
+     1000:  195:        if (copyOfGame.coins != expectedCoinCount) {
+    #####:  196:            printf("FAILURE, Test 6 Mixed\n Actual: %d, Expected: %d\n", copyOfGame.coins, expectedCoinCount);
+    #####:  197:            isTestPassed = 0;
+        -:  198:        }
+        -:  199:    }
+        1:  200:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedCoinCount);
+        1:  201:    if(isTestPassed){
+        1:  202:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  203:    }
+        -:  204:    
+        -:  205:    #if (NOISY_TEST == 1)
+        1:  206:    printf("----------------- Testing Function %s ----------------\n", currentFunction);
+        1:  207:    printf("----------------- Test 7: Bonus ----------------\n");
+        -:  208:    #endif
+        1:  209:    memcpy(&copyOfGame, &Game, sizeof(struct gameState));
+        1:  210:    copyOfGame.handCount[player] = 0;
+        1:  211:    bonus = 1;
+        1:  212:    expectedCoinCount = 1;
+        -:  213:
+     1001:  214:    for (i = 0; i < numberOfTests; i++) {
+     1000:  215:        updateCoins(player, &copyOfGame, bonus);
+     1000:  216:        if (copyOfGame.coins != expectedCoinCount) {
+    #####:  217:            printf("%sFAILURE, Test 7 With Bonus%s\n Actual: %d, Expected: %d\n", angery, angery, copyOfGame.coins, expectedCoinCount);
+    #####:  218:            isTestPassed = 0;
+        -:  219:        }
+        -:  220:    }
+        1:  221:    printf("Actual: %d, Expected: %d \n\n", copyOfGame.coins, expectedCoinCount);
+        -:  222:    
+        1:  223:    if(isTestPassed){
+        1:  224:        printf("%s TESTS PASSED %s\n", bee, bee);
+        -:  225:    }
+        -:  226:    
+        -:  227:    //If the tests have not already failed, return true!
+        1:  228:    if(isTestPassed){
+        1:  229:        printf("%s ALL TESTS PASSED %s\n", bee, bee);
+        -:  230:    }
+        -:  231:}
